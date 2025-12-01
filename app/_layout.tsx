@@ -1,24 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { useFonts } from "expo-font";
+import { StatusBar } from "expo-status-bar";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ThemedView } from "@/components/ThemedView";
+import ThemeContent from "@/context/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import "@/mock";
+import { useColorScheme } from "react-native";
+import Routes from "./routes";
 
 export default function RootLayout() {
+  const { top } = useSafeAreaInsets();
   const colorScheme = useColorScheme();
 
+  const [loaded] = useFonts({
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+  });
+
+  if (!loaded) {
+    // Async font loading only occurs in development.
+    return null;
+  }
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ThemeContent>
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      <ThemedView style={{ height: top }} />
+      <Routes />
+    </ThemeContent>
   );
 }
